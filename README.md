@@ -17,7 +17,6 @@ i18next
       distribution: 'DISTRIBUTION_ID',
       secret: 'YOUR_ENVIRONMENT_SECRET',
       appVersion: '1.0.0',
-      uuid: 'UNIQUE_USER_UUID'
     }
   });
 ```
@@ -44,7 +43,6 @@ i18next
         distribution: 'DISTRIBUTION_ID',
         secret: 'YOUR_ENVIRONMENT_SECRET',
         appVersion: '1.0.0',
-        uuid: 'UNIQUE_USER_UUID'
       }]
     }
   })
