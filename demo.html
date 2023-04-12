@@ -8,8 +8,6 @@ i18next
   .init({
     fallbackLng: 'en',
     debug: true,
-    ns: ['common'],
-    defaultNS: 'common',
     backend: {
       distribution: 'a6b56dec93f55bf9f5ecbe72530e6f2a',
       secret: '-lZhQqNCARR3L0oiLQnia834WxJWgrqg9nEVJTqKIkI',
@@ -26,10 +24,6 @@ function updateContent() {
   document.getElementById('third').innerHTML = i18next.t('test.third');
 }
 
-function changeLng(lng) {
-  i18next.changeLanguage(lng);
-}
-
 i18next.on('languageChanged', () => {
   updateContent();
 });
@@ -40,7 +34,7 @@ i18next.on('languageChanged', () => {
   <button onclick="i18next.changeLanguage('en')">
   english
   </button>
-  <button onclick="i18next.changeLanguage('de')">
+  <button onclick="i18next.changeLanguage('de_DE')">
   german
   </button>
   <hr />
