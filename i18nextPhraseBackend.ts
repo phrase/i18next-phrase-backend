@@ -1,6 +1,6 @@
 import Phrase from "./phrase";
 
-class i18nextPhraseBackend {
+class Backend {
   services: any
   options: {}
   allOptions: {}
@@ -9,6 +9,7 @@ class i18nextPhraseBackend {
   static type: string
 
   constructor(services: any, options = {}, allOptions = {}) {
+    console.log('in the constructor')
     this.services = services
     this.options = options
     this.allOptions = allOptions
@@ -19,6 +20,7 @@ class i18nextPhraseBackend {
   }
 
   init(services: any, options: {}, allOptions: {}) {
+    console.log('in init')
     this.services = services;
     this.options = options;
     this.allOptions = allOptions;
@@ -30,6 +32,6 @@ class i18nextPhraseBackend {
   }
 }
 
-i18nextPhraseBackend.type = 'backend'
+Backend.type = 'backend'
 
-export default i18nextPhraseBackend
+export default Backend

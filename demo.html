@@ -1,10 +1,10 @@
 <script src="https://unpkg.com/i18next/i18next.js"></script>
 <script> var exports = {}; </script>
-<script src="./dist/i18nextPhraseBackend.js"></script>
+<script src="./dist/out.js"></script>
 <script>
 // import i18next from 'i18next';
 i18next
-  .use(i18nextPhraseBackend)
+  .use(i18nextPhraseBackend.default)
   .init({
     fallbackLng: 'en',
     debug: true,
