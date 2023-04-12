@@ -8,14 +8,14 @@ const CURRENT_VERSION = '0' // temporarily
 
 export default class Phrase {
     distribution: string;
-    environment: string;
+    secret: string;
     appVersion: string;
     fileFormat: string;
     uuid: string;
     api: PhraseApi;
-    constructor(distribution: string, environment: string, appVersion: string, uuid: string,  fileFormat = DEFAULT_FORMAT, host = DEFAULT_URL) {
+    constructor(distribution: string, secret: string, appVersion: string, uuid: string,  fileFormat = DEFAULT_FORMAT, host = DEFAULT_URL) {
         this.distribution = distribution;
-        this.environment = environment;
+        this.secret = secret;
         this.appVersion = appVersion;
         this.fileFormat = fileFormat;
         this.uuid = uuid;
@@ -28,11 +28,11 @@ export default class Phrase {
     }
 
     async requestTranslation(localeCode: string) {
-        // let localeHash = Phrase.localeHash(this.distribution, this.environment, localeCode)
+        // let localeHash = Phrase.localeHash(this.distribution, this.secret, localeCode)
         try {
             let response = await this.api.getTranslations(
                 this.distribution,
-                this.environment,
+                this.secret,
                 localeCode,
                 this.fileFormat,
                 this.uuid,

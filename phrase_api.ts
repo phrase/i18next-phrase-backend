@@ -17,7 +17,7 @@ export default class PhraseApi {
         this.baseUrl = baseUrl;
     }
 
-    async getTranslations(distribution: string, environment: string, locale: string, fileFormat: string, uuid: string, sdkVersion: string, currentVersion: string, appVersion: string) {
+    async getTranslations(distribution: string, secret: string, locale: string, fileFormat: string, uuid: string, sdkVersion: string, currentVersion: string, appVersion: string) {
         let params = {
             client: 'react_native',
             sdk_version: sdkVersion,
@@ -28,14 +28,14 @@ export default class PhraseApi {
         // if (currentVersion != null) params['current_version'] = currentVersion;
         // if (appVersion != null) params['app_version'] = appVersion;
 
-        const url = new URL(`${this.baseUrl}/${distribution}/${environment}/${locale}/${fileFormat}`);
+        const url = new URL(`${this.baseUrl}/${distribution}/${secret}/${locale}/${fileFormat}`);
         url.search = new URLSearchParams(params).toString();
 
         let response = await fetch(url, {
             method: 'GET',
+            mode: "cors",
             headers: {
                 'Accept': 'application/json',
-                'Content-Type': 'application/json'
             }
         });
         let code = response.status
@@ -50,5 +50,4 @@ export default class PhraseApi {
             throw new PhraseApiError("HTTP code " + code);
         }
     }
-
 }

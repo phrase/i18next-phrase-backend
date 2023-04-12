@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc"
+    "compile": "tsc",
+    "browser": "browserify --ignore cross-fetch --standalone i18nextPhraseBackend dist/i18nextPhraseBackend.js -o dist/out.js",
+    "build": "npm run compile && npm run browser"
   },
   "keywords": [],
   "author": "",
