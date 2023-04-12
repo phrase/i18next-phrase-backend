@@ -6,28 +6,25 @@ class Backend {
     distribution: string
     secret: string
   }
-  allOptions: {}
   type: string
   phrase: Phrase | null
   static type: string
 
-  constructor(services: any, options = {distribution: '', secret: ''}, allOptions = {}) {
+  constructor(services: any, options = {distribution: '', secret: ''}) {
     this.type = 'backend'
     this.options = options
-    this.allOptions = options
     this.phrase = null
-    this.init(services, options, allOptions)
+    this.init(services, options)
   }
 
-  init(services: any, options: {distribution: string, secret: string}, allOptions: {}) {
+  init(services: any, options: {distribution: string, secret: string}) {
     this.services = services;
     this.options = options;
-    this.allOptions = allOptions;
     const uuid = 'MY_UUID'; // TODO: properly generate and store in local storage
     this.phrase = new Phrase(options.distribution, options.secret, '1.0.0', uuid)
   }
 
-  read (language: string, _namespace: string) {
+  read (language: string) {
     if (this.phrase) {
       const translation = this.phrase.requestTranslation(language)
         return new Promise((resolve) => {

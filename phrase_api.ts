@@ -18,7 +18,7 @@ export default class PhraseApi {
     }
 
     async getTranslations(distribution: string, secret: string, locale: string, fileFormat: string, uuid: string, sdkVersion: string, currentVersion: string, appVersion: string) {
-        let params = {
+        const params = {
             client: 'react_native',
             sdk_version: sdkVersion,
             unique_identifier: uuid,
@@ -31,14 +31,14 @@ export default class PhraseApi {
         const url = new URL(`${this.baseUrl}/${distribution}/${secret}/${locale}/${fileFormat}`);
         url.search = new URLSearchParams(params).toString();
 
-        let response = await fetch(url, {
+        const response = await fetch(url, {
             method: 'GET',
             mode: "cors",
             headers: {
                 'Accept': 'application/json',
             }
         });
-        let code = response.status
+        const code = response.status
         if (code >= 200 && code <= 299) {
             const url = new URL(response.url);
             const version = url.searchParams.get('version');
