@@ -8,24 +8,22 @@ i18next
   .init({
     fallbackLng: 'en',
     debug: true,
-    ns: ['special', 'common'],
-    defaultNS: 'special',
+    ns: ['common'],
+    defaultNS: 'common',
     backend: {
-      // load from i18next-gitbook repo
-      loadPath: 'https://raw.githubusercontent.com/i18next/i18next-gitbook/master/locales/{{lng}}/{{ns}}.json',
-      crossDomain: true
+      distribution: 'a6b56dec93f55bf9f5ecbe72530e6f2a',
+      secret: '-lZhQqNCARR3L0oiLQnia834WxJWgrqg9nEVJTqKIkI',
+      appVersion: '1.0.0',
+      uuid: 'MY_UUID'
     }
   }, function(err, t) {
-    // init set content
     updateContent();
   });
 
-
-// just set some content and react to language changes
-// could be optimized using vue-i18next, jquery-i18next, react-i18next, ...
 function updateContent() {
-  document.getElementById('title').innerHTML = i18next.t('title', { what: 'i18next' });
-  document.getElementById('saveBtn').innerHTML = i18next.t('common:button.save', { count: Math.floor(Math.random()*2+1)  });
+  document.getElementById('first').innerHTML = i18next.t('test.first');
+  document.getElementById('second').innerHTML = i18next.t('test.second', {value: 3});
+  document.getElementById('third').innerHTML = i18next.t('test.third');
 }
 
 function changeLng(lng) {
@@ -46,8 +44,9 @@ i18next.on('languageChanged', () => {
   german
   </button>
   <hr />
-  <div id="title"></div>
-  <button id="saveBtn"></button>
-  <hr />
-  <div id="info"></div>
+  <ul>
+    <li id="first">first</li>
+    <li id="second">second</li>
+    <li id="third">third</li>
+  </ul>
 </div>

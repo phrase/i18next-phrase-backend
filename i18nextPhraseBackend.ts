@@ -2,33 +2,38 @@ import Phrase from "./phrase";
 
 class Backend {
   services: any
-  options: {}
+  options: {
+    distribution: string
+    uuid: string
+    secret: string
+  }
   allOptions: {}
   type: string
-  phrase: Phrase
+  phrase: Phrase | null
   static type: string
 
-  constructor(services: any, options = {}, allOptions = {}) {
-    console.log('in the constructor')
-    this.services = services
-    this.options = options
-    this.allOptions = allOptions
+  constructor(services: any, options = {distribution: '', secret: '', uuid: ''}, allOptions = {}) {
     this.type = 'backend'
+    this.options = options
+    this.allOptions = options
+    this.phrase = null
     this.init(services, options, allOptions)
-
-    this.phrase = new Phrase('test', 'dev', '1.0.0', 'MY_UUID')
   }
 
-  init(services: any, options: {}, allOptions: {}) {
-    console.log('in init')
+  init(services: any, options: {distribution: string, secret: string, uuid: string}, allOptions: {}) {
     this.services = services;
     this.options = options;
     this.allOptions = allOptions;
+    this.phrase = new Phrase(options.distribution, options.secret, '1.0.0', options.uuid)
   }
 
-  read (language: string, namespace: string, callback: (arg0: null, arg1: any) => void) {
-    const translation = this.phrase.requestTranslation(language)
-    callback(null, translation);
+  read (language: string, _namespace: string) {
+    if (this.phrase) {
+      const translation = this.phrase.requestTranslation(language)
+        return new Promise((resolve) => {
+          resolve(translation)
+        })
+    }
   }
 }
 
