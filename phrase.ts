@@ -30,7 +30,7 @@ export default class Phrase {
     async requestTranslation(localeCode: string) {
         // let localeHash = Phrase.localeHash(this.distribution, this.secret, localeCode)
         try {
-            let response = await this.api.getTranslations(
+            const response = await this.api.getTranslations(
                 this.distribution,
                 this.secret,
                 localeCode,
