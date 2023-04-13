@@ -20,7 +20,7 @@ class Backend {
   init(services: any, options: {distribution: string, secret: string}) {
     this.services = services;
     this.options = options;
-    const uuid = 'MY_UUID'; // TODO: properly generate and store in local storage
+    const uuid = this.getUUID();
     this.phrase = new Phrase(options.distribution, options.secret, '1.0.0', uuid)
   }
 
@@ -31,6 +31,22 @@ class Backend {
           resolve(translation)
         })
     }
+  }
+
+  getUUID() {
+    const STORAGE_KEY = "i18nextPhraseBackend.UUID"
+    let uuid = null
+    if (typeof(Storage) !== "undefined") {
+      uuid = localStorage.getItem(STORAGE_KEY)
+      if (!uuid) {
+        uuid = crypto.randomUUID()
+        localStorage.setItem(STORAGE_KEY, uuid)
+      }
+    } else {
+      // Sorry! No Web Storage support..
+      uuid = 'GENERIC_UUID'
+    }
+    return uuid
   }
 }
 
