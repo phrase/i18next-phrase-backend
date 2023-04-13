@@ -24,7 +24,7 @@ class Backend {
     this.phrase = new Phrase(options.distribution, options.secret, '1.0.0', uuid)
   }
 
-  read (language: string) {
+  read (language: string, _namespace: string) {
     if (this.phrase) {
       const translation = this.phrase.requestTranslation(language)
         return new Promise((resolve) => {
