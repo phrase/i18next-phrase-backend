@@ -2,15 +2,18 @@
 
 ## Description
 
-This small library implements an example [backend](https://www.i18next.com/overview/plugins-and-utils#backends) for [`i18next`](https://www.i18next.com/) which retrieves the translations from Phrase OTA releases. The distribution should be created for "React Native" platform.
+This small library implements an example [backend](https://www.i18next.com/overview/plugins-and-utils#backends) for [`i18next`](https://www.i18next.com/) which retrieves the translations from Phrase OTA releases. The distribution should be created for `i18next` platform.
 
 ## Usage
 
 ### Basic usage
 
 ```javascript
-i18next
-  .use(i18nextPhraseBackend.default)
+import i18n from "i18next";
+import { I18nextPhraseBackend } from "i18next-phrase-backend";
+
+i18n
+  .use(I18nextPhraseBackend)
   .init({
     fallbackLng: 'en',
     backend: {
@@ -33,7 +36,7 @@ i18next
     backend: {
       backends: [
         i18nextLocalStorageBackend,
-        i18nextPhraseBackend.default
+        I18nextPhraseBackend
       ],
       backendOptions: [{
         // options for local storage backend
