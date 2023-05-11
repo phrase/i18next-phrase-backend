@@ -51,5 +51,3 @@ export class I18nextPhraseBackend {
 }
 
 I18nextPhraseBackend.type = 'backend'
-
-// export default I18nextPhraseBackend
