@@ -1,6 +1,6 @@
 import Phrase from "./phrase";
 
-class Backend {
+export class I18nextPhraseBackend {
   services: any
   options: {
     distribution: string
@@ -50,6 +50,4 @@ class Backend {
   }
 }
 
-Backend.type = 'backend'
-
-export default Backend
+I18nextPhraseBackend.type = 'backend'

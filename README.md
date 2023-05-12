@@ -1,16 +1,21 @@
-# i18nextPhraseBackend - OTA for web PoC
+# i18nextPhraseBackend - Phrase Strings backend for i18next
 
 ## Description
 
-This small library implements an example [backend](https://www.i18next.com/overview/plugins-and-utils#backends) for [`i18next`](https://www.i18next.com/) which retrieves the translations from Phrase OTA releases. The distribution should be created for "React Native" platform.
+This small library implements an example [backend](https://www.i18next.com/overview/plugins-and-utils#backends) for [`i18next`](https://www.i18next.com/) which retrieves the translations from Phrase OTA releases. The distribution should be created for `i18next` platform.
 
 ## Usage
+
+A demo project can be found at https://github.com/phrase/react_ota_example
 
 ### Basic usage
 
 ```javascript
-i18next
-  .use(i18nextPhraseBackend.default)
+import i18n from "i18next";
+import { I18nextPhraseBackend } from "i18next-phrase-backend";
+
+i18n
+  .use(I18nextPhraseBackend)
   .init({
     fallbackLng: 'en',
     backend: {
@@ -33,7 +38,7 @@ i18next
     backend: {
       backends: [
         i18nextLocalStorageBackend,
-        i18nextPhraseBackend.default
+        I18nextPhraseBackend
       ],
       backendOptions: [{
         // options for local storage backend
