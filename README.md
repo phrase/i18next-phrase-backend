@@ -1,10 +1,12 @@
-# i18nextPhraseBackend - OTA for web PoC
+# i18nextPhraseBackend - Phrase Strings backend for i18next
 
 ## Description
 
 This small library implements an example [backend](https://www.i18next.com/overview/plugins-and-utils#backends) for [`i18next`](https://www.i18next.com/) which retrieves the translations from Phrase OTA releases. The distribution should be created for `i18next` platform.
 
 ## Usage
+
+A demo project can be found at https://github.com/phrase/react_ota_example
 
 ### Basic usage
 
