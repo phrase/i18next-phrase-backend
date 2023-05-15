@@ -1,27 +1,26 @@
 import Phrase from "./phrase";
 
 export class I18nextPhraseBackend {
-  services: any
   options: {
     distribution: string
     secret: string
+    appVersion: string
   }
   type: string
   phrase: Phrase | null
   static type: string
 
-  constructor(services: any, options = {distribution: '', secret: ''}) {
+  constructor(services: any, options = {distribution: '', secret: '', appVersion: '1.0.0'}) {
     this.type = 'backend'
     this.options = options
     this.phrase = null
     this.init(services, options)
   }
 
-  init(services: any, options: {distribution: string, secret: string}) {
-    this.services = services;
-    this.options = options;
-    const uuid = this.getUUID();
-    this.phrase = new Phrase(options.distribution, options.secret, '1.0.0', uuid)
+  init(_services: any, options: {distribution: string, secret: string, appVersion: string}) {
+    this.options = options
+    const uuid = this.getUUID()
+    this.phrase = new Phrase(options.distribution, options.secret, options.appVersion, uuid)
   }
 
   read (language: string, _namespace: string) {
