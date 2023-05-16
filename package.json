@@ -1,20 +1,19 @@
 {
-  "name": "i18next-phrase-backend",
+  "name": "@phrase/i18next-backend",
   "version": "1.0.0",
-  "description": "",
+  "description": "Phrase Strings OTA i18next backend",
   "main": "dist/index.js",
   "files": [
     "/dist"
   ],
   "types": "dist/index.d.ts",
   "scripts": {
-    "lint": "eslint ./*.ts",
+    "lint": "eslint ./src/*.ts",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "compile": "tsc",
-    "build": "npm run compile && npm run browser"
+    "compile": "tsc"
   },
   "keywords": [],
-  "author": "",
+  "author": "Phrase GmbH",
   "license": "ISC",
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^5.58.0",

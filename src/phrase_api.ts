@@ -1,7 +1,11 @@
+export type Translation = {
+    [key: string]: string | Translation | [string | Translation]
+}
+
 export class PhraseResponse {
     version: string | null;
-    json: any;
-    constructor(version: string | null, json: any) {
+    json: Translation;
+    constructor(version: string | null, json: Translation) {
         this.version = version;
         this.json = json;
     }
@@ -11,7 +15,7 @@ class PhraseApiError extends Error {
 }
 
 export default class PhraseApi {
-    baseUrl: any;
+    baseUrl: string;
 
     constructor(baseUrl: string) {
         this.baseUrl = baseUrl;
