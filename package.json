@@ -1,6 +1,6 @@
 {
-  "name": "i18next-phrase-backend",
-  "version": "1.0.2",
+  "name": "@phrase/i18next-backend",
+  "version": "1.0.0",
   "description": "Phrase Strings OTA i18next backend",
   "main": "dist/index.js",
   "files": [
