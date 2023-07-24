@@ -12,9 +12,16 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "compile": "tsc"
   },
-  "keywords": [],
-  "author": "Phrase GmbH",
-  "license": "ISC",
+  "keywords": [
+    "i18next",
+    "phrase",
+    "strings",
+    "over-the-air",
+    "ota"
+  ],
+  "homepage": "https://phrase.com",
+  "author": "Phrase",
+  "license": "MIT",
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^5.58.0",
     "eslint": "^8.38.0",
@@ -23,7 +30,6 @@
     "eslint-plugin-n": "^15.7.0",
     "eslint-plugin-promise": "^6.1.1",
     "typescript": "^5.1.6",
-
     "@babel/core": "^7.21.4",
     "@babel/preset-env": "^7.21.4",
     "babel-jest": "^29.5.0",
