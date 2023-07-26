@@ -25,30 +25,3 @@ i18n
     }
   });
 ```
-
-### Combining with LocalStorage
-
-It is usually a good idea to [cache](https://www.i18next.com/how-to/caching) the translations in order to reduce the load to OTA servers, so you can chain Phrase backend with LocalStorage cache:
-
-```javascript
-i18next
-  .use(i18nextChainedBackend)
-  .init({
-    fallbackLng: "en",
-    backend: {
-      backends: [
-        i18nextLocalStorageBackend,
-        I18nextPhraseBackend
-      ],
-      backendOptions: [{
-        // options for local storage backend
-        expirationTime: 5 * 60 * 1000 // 5 minutes
-      }, {
-        // options for phrase backend
-        distribution: 'DISTRIBUTION_ID',
-        secret: 'YOUR_ENVIRONMENT_SECRET',
-        appVersion: '1.0.0',
-      }]
-    }
-  })
-```
