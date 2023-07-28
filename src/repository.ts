@@ -1,12 +1,13 @@
+import MemoryStorage from "./memory_storage";
+
 export default class Repository {
     private storage: Storage;
 
     constructor() {
-        if (typeof (Storage) !== "undefined") {
+        if (this.isLocalStorageAvailable()) {
             this.storage = localStorage;
         } else {
-            // TODO handle case when localStorage is not available
-            throw new Error("localStorage is not available");
+            this.storage = new MemoryStorage();
         }
     }
 
@@ -16,5 +17,20 @@ export default class Repository {
 
     getItem(key: string): string | null {
         return this.storage.getItem(key);
+    }
+
+    isLocalStorageAvailable(): boolean {
+        if (typeof localStorage !== 'undefined') {
+            try {
+                localStorage.setItem('i18next-phrase-backend::storage', 'enabled');
+                if (localStorage.getItem('i18next-phrase-backend::storage') === 'enabled') {
+                    localStorage.removeItem('i18next-phrase-backend::storage');
+                    return true;
+                }
+            } catch {
+            }
+        }
+
+        return false;
     }
 }
