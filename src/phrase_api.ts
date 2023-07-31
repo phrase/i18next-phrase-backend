@@ -17,7 +17,7 @@ export class PhraseApi {
         this.baseUrl = baseUrl;
     }
 
-    async getTranslations(distribution: string, secret: string, locale: string, fileFormat: string, uuid: string, sdkVersion: string, currentVersion: string | null, appVersion: string, lastUpdate: string | null): Promise<PhraseResponse | null> {
+    async getTranslations(distribution: string, secret: string, locale: string, fileFormat: string, uuid: string, sdkVersion: string, currentVersion: string | null, appVersion: string | undefined, lastUpdate: string | null): Promise<PhraseResponse | null> {
         const params = Object.entries({
             client: 'i18next',
             sdk_version: sdkVersion,

@@ -5,32 +5,39 @@ const PHRASE_SDK_VERSION = '1.0.0'
 const DEFAULT_FORMAT = 'i18next'
 const DEFAULT_URL = 'https://ota.eu.phrase.com'
 
+export interface Options {
+    distribution: string,
+    secret: string,
+    appVersion?: string,
+    cacheExpirationTime: number,
+    host?: string,
+    debug: boolean
+}
+
 export default class Phrase {
-    distribution: string;
-    secret: string;
-    appVersion: string;
+    options: Options;
     fileFormat: string;
     uuid: string;
     api: PhraseApi;
 
     private repo: Repository = new Repository();
 
-    constructor(distribution: string, secret: string, appVersion: string, fileFormat = DEFAULT_FORMAT, host = DEFAULT_URL) {
-        this.distribution = distribution;
-        this.secret = secret;
-        this.appVersion = appVersion;
-        this.fileFormat = fileFormat;
+    constructor(options: Options) {
+        this.options = options
+        this.fileFormat = DEFAULT_FORMAT;
         this.uuid = this.getUUID();
 
-        this.api = new PhraseApi(host);
+        this.api = new PhraseApi(this.options.host || DEFAULT_URL);
     }
 
-    static log(s: string) {
-        console.log("PHRASE: " + s);
+    log(s: string) {
+        if (this.options.debug) {
+            console.log("PHRASE: " + s);
+        }
     }
 
     async requestTranslations(localeCode: string) {
-        const cacheKey = this.generateCacheKey(this.distribution, this.secret, localeCode);
+        const cacheKey = this.generateCacheKey(this.options.distribution, this.options.secret, localeCode);
         const expirationKey = `${cacheKey}::expiration`;
         const expirationDate = this.repo.getItem(expirationKey);
         if (expirationDate) {
@@ -47,27 +54,28 @@ export default class Phrase {
 
         try {
             const response = await this.api.getTranslations(
-                this.distribution,
-                this.secret,
+                this.options.distribution,
+                this.options.secret,
                 localeCode,
                 this.fileFormat,
                 this.uuid,
                 PHRASE_SDK_VERSION,
                 currentVersion,
-                this.appVersion,
+                this.options.appVersion,
                 lastUpdate
             )
             if (response != null) {
+                this.log("OTA update for `" + localeCode + "`: OK");
                 this.cacheResponse(cacheKey, response);
                 return response.body;
             } else {
-                Phrase.log("OTA update for `" + localeCode + "`: NOT MODIFIED");
+                this.log("OTA update for `" + localeCode + "`: NOT MODIFIED");
             }
 
-            const expiryTime = 1000 * 60 * 5; // Expire in 5 minutes
+            const expiryTime = 1000 * this.options.cacheExpirationTime;
             this.repo.setItem(`${cacheKey}::expiration`, (Date.now() + expiryTime).toString());
         } catch (e) {
-            Phrase.log("OTA update for `" + localeCode + "`: ERROR: " + e);
+            this.log("OTA update for `" + localeCode + "`: ERROR: " + e);
         }
     }
 

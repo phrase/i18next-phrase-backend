@@ -25,3 +25,21 @@ i18n
     }
   });
 ```
+
+## Caching
+
+The library is caching translations and won't check for new translations for 5 minutes. This can be configured by setting the `cacheExpirationTime` option in the backend configuration for testing purposes. It's recommended to use at least 5 minutes in production.
+
+
+i18n
+  .use(I18nextPhraseBackend)
+  .init({
+    fallbackLng: 'en',
+    backend: {
+      distribution: 'DISTRIBUTION_ID',
+      secret: 'YOUR_ENVIRONMENT_SECRET',
+      appVersion: '1.0.0',
+      cacheExpirationTime: 60 * 5, // time in seconds
+    }
+  });
+```
