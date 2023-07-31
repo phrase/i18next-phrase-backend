@@ -1,13 +1,9 @@
-export type Translation = {
-    [key: string]: string | Translation | [string | Translation]
-}
-
 export class PhraseResponse {
     version: string | null;
-    json: Translation;
-    constructor(version: string | null, json: Translation) {
+    body: string;
+    constructor(version: string | null, body: string) {
         this.version = version;
-        this.json = json;
+        this.body = body;
     }
 }
 

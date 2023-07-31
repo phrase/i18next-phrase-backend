@@ -59,7 +59,7 @@ export default class Phrase {
             )
             if (response != null) {
                 this.cacheResponse(cacheKey, response);
-                return response.json;
+                return response.body;
             } else {
                 Phrase.log("OTA update for `" + localeCode + "`: NOT MODIFIED");
             }
@@ -72,7 +72,7 @@ export default class Phrase {
     }
 
     private cacheResponse(cacheKey: string, response: PhraseResponse) {
-        this.repo.setItem(cacheKey, JSON.stringify(response.json));
+        this.repo.setItem(cacheKey, response.body);
         this.repo.setItem("last_update", Date.now().toString());
         this.repo.setItem(`${cacheKey}::current_version`, response.version?.toString() || "")
     }
