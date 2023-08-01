@@ -41,7 +41,7 @@ export class PhraseApi {
         if (code >= 200 && code <= 299) {
             const url = new URL(response.url);
             const version = url.searchParams.get('version');
-            const json = await response.json();
+            const json = await response.text();
 
             return new PhraseResponse(version, json);
         } else if (code === 304) {
