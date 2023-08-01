@@ -1,51 +1,33 @@
-import Phrase from "./phrase";
+import Phrase, { Options } from "./phrase";
 
 export class I18nextPhraseBackend {
-  options: {
-    distribution: string
-    secret: string
-    appVersion: string
-  }
+  options: Options;
   type: string
-  phrase: Phrase | null
+  phrase?: Phrase
   static type: string
 
-  constructor(services: any, options = {distribution: '', secret: '', appVersion: '1.0.0'}) {
+  constructor(_services: any, _options: Options) {
     this.type = 'backend'
-    this.options = options
-    this.phrase = null
-    this.init(services, options)
+    this.options = {} as Options;
   }
 
-  init(_services: any, options: {distribution: string, secret: string, appVersion: string}) {
+  init(_services: any, options: Options) {
+    if (!options.distribution || !options.secret) {
+      throw new Error('distribution and secret are required');
+    }
+
     this.options = options
-    const uuid = this.getUUID()
-    this.phrase = new Phrase(options.distribution, options.secret, options.appVersion, uuid)
+    this.options.cacheExpirationTime = this.options.cacheExpirationTime || 60 * 5
+    this.phrase = new Phrase(options)
   }
 
-  read (language: string, _namespace: string) {
+  read(language: string, _namespace: string) {
     if (this.phrase) {
-      const translation = this.phrase.requestTranslation(language)
-        return new Promise((resolve) => {
-          resolve(translation)
-        })
+      const translation = this.phrase.requestTranslations(language)
+      return new Promise((resolve) => {
+        resolve(translation)
+      })
     }
-  }
-
-  getUUID() {
-    const STORAGE_KEY = "i18nextPhraseBackend.UUID"
-    let uuid = null
-    if (typeof(Storage) !== "undefined") {
-      uuid = localStorage.getItem(STORAGE_KEY)
-      if (!uuid) {
-        uuid = crypto.randomUUID()
-        localStorage.setItem(STORAGE_KEY, uuid)
-      }
-    } else {
-      // Sorry! No Web Storage support..
-      uuid = 'GENERIC_UUID'
-    }
-    return uuid
   }
 }
 

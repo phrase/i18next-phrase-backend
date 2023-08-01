@@ -1,36 +1,31 @@
-export type Translation = {
-    [key: string]: string | Translation | [string | Translation]
-}
-
 export class PhraseResponse {
     version: string | null;
-    json: Translation;
-    constructor(version: string | null, json: Translation) {
+    body: string;
+    constructor(version: string | null, body: string) {
         this.version = version;
-        this.json = json;
+        this.body = body;
     }
 }
 
 class PhraseApiError extends Error {
 }
 
-export default class PhraseApi {
+export class PhraseApi {
     baseUrl: string;
 
     constructor(baseUrl: string) {
         this.baseUrl = baseUrl;
     }
 
-    async getTranslations(distribution: string, secret: string, locale: string, fileFormat: string, uuid: string, sdkVersion: string, currentVersion: string, appVersion: string) {
-        const params = {
-            client: 'react_native',
+    async getTranslations(distribution: string, secret: string, locale: string, fileFormat: string, uuid: string, sdkVersion: string, currentVersion: string | null, appVersion: string | undefined, lastUpdate: string | null): Promise<PhraseResponse | null> {
+        const params = Object.entries({
+            client: 'i18next',
             sdk_version: sdkVersion,
             unique_identifier: uuid,
             current_version: currentVersion,
             app_version: appVersion,
-        };
-        // if (currentVersion != null) params['current_version'] = currentVersion;
-        // if (appVersion != null) params['app_version'] = appVersion;
+            last_update: lastUpdate
+        }).filter(([_key, value]) => { return value != null; }) as [string, string][];
 
         const url = new URL(`${this.baseUrl}/${distribution}/${secret}/${locale}/${fileFormat}`);
         url.search = new URLSearchParams(params).toString();
@@ -47,6 +42,7 @@ export default class PhraseApi {
             const url = new URL(response.url);
             const version = url.searchParams.get('version');
             const json = await response.json();
+
             return new PhraseResponse(version, json);
         } else if (code === 304) {
             return null;
