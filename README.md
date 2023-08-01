@@ -30,7 +30,7 @@ i18n
 
 The library is caching translations and won't check for new translations for 5 minutes. This can be configured by setting the `cacheExpirationTime` option in the backend configuration for testing purposes. It's recommended to use at least 5 minutes in production.
 
-
+```javascript
 i18n
   .use(I18nextPhraseBackend)
   .init({
