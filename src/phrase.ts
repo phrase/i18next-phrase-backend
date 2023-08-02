@@ -40,42 +40,43 @@ export default class Phrase {
         const cacheKey = this.generateCacheKey(this.options.distribution, this.options.secret, localeCode);
         const expirationKey = `${cacheKey}::expiration`;
         const expirationDate = this.repo.getItem(expirationKey);
-        if (expirationDate) {
-            if (Date.now() < parseInt(expirationDate)) {
-                const cacheValue = this.repo.getItem(cacheKey);
-                if (cacheValue) {
-                    return JSON.parse(cacheValue);
+        if (!expirationDate || Date.now() > parseInt(expirationDate)) {
+            const currentVersion = this.repo.getItem(`${cacheKey}::current_version`);
+            const lastUpdate = this.repo.getItem(`${cacheKey}::last_update`);
+
+            try {
+                const response = await this.api.getTranslations(
+                    this.options.distribution,
+                    this.options.secret,
+                    localeCode,
+                    this.fileFormat,
+                    this.uuid,
+                    PHRASE_SDK_VERSION,
+                    currentVersion,
+                    this.options.appVersion,
+                    lastUpdate
+                )
+                if (response != null) {
+                    this.log("OTA update for `" + localeCode + "`: OK");
+                    this.cacheResponse(cacheKey, response);
+                } else {
+                    this.log("OTA update for `" + localeCode + "`: NOT MODIFIED");
                 }
+
+                const expiryTime = 1000 * this.options.cacheExpirationTime;
+                this.repo.setItem(`${cacheKey}::expiration`, (Date.now() + expiryTime).toString());
+            } catch (e) {
+                this.log("OTA update for `" + localeCode + "`: ERROR: " + e);
+                return({});
             }
         }
 
-        const currentVersion = this.repo.getItem(`${cacheKey}::current_version`);
-        const lastUpdate = this.repo.getItem(`${cacheKey}::last_update`);
-
-        try {
-            const response = await this.api.getTranslations(
-                this.options.distribution,
-                this.options.secret,
-                localeCode,
-                this.fileFormat,
-                this.uuid,
-                PHRASE_SDK_VERSION,
-                currentVersion,
-                this.options.appVersion,
-                lastUpdate
-            )
-            if (response != null) {
-                this.log("OTA update for `" + localeCode + "`: OK");
-                this.cacheResponse(cacheKey, response);
-                return response.body;
-            } else {
-                this.log("OTA update for `" + localeCode + "`: NOT MODIFIED");
-            }
-
-            const expiryTime = 1000 * this.options.cacheExpirationTime;
-            this.repo.setItem(`${cacheKey}::expiration`, (Date.now() + expiryTime).toString());
-        } catch (e) {
-            this.log("OTA update for `" + localeCode + "`: ERROR: " + e);
+        const cacheValue = this.repo.getItem(cacheKey);
+        if (cacheValue) {
+            return JSON.parse(cacheValue);
+        } else {
+            this.log("Nothing found in cache, no translations returned");
+            return({});
         }
     }
 
