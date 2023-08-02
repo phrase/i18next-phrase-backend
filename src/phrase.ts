@@ -67,12 +67,16 @@ export default class Phrase {
                 this.repo.setItem(`${cacheKey}::expiration`, (Date.now() + expiryTime).toString());
             } catch (e) {
                 this.log("OTA update for `" + localeCode + "`: ERROR: " + e);
+                return({});
             }
         }
 
         const cacheValue = this.repo.getItem(cacheKey);
         if (cacheValue) {
             return JSON.parse(cacheValue);
+        } else {
+            this.log("Nothing found in cache, no translations returned");
+            return({});
         }
     }
 
