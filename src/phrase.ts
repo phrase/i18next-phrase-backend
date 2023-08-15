@@ -11,7 +11,7 @@ export interface Options {
     appVersion?: string,
     cacheExpirationTime: number,
     host?: string,
-    debug: boolean
+    debug?: boolean
 }
 
 export default class Phrase {
