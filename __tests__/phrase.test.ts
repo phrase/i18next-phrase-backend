@@ -21,7 +21,7 @@ describe('requestTranslations', () => {
     }
   };
 
-  global.fetch = jest.fn((_url, _options) =>
+  const fetchMock = jest.fn((_url, _options) =>
     Promise.resolve({
       status: 200,
       ok: true,
@@ -30,8 +30,17 @@ describe('requestTranslations', () => {
     }),
   ) as jest.Mock;
 
-  test('should return a translation', async () => {
+  global.fetch = fetchMock;
+
+  test('should return translations', async () => {
     const translations = await phrase.requestTranslations('en');
+    expect(fetchMock).toHaveBeenCalledTimes(1);
     expect(translations).toEqual(mockResponse);
+  });
+
+  test('two subsequent calls should only fetch once', async () => {
+    await phrase.requestTranslations('en');
+    await phrase.requestTranslations('en');
+    expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 });
