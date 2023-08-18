@@ -80,6 +80,10 @@ export default class Phrase {
         }
     }
 
+    clearCache() {
+        this.repo.clear();
+    }
+
     private cacheResponse(cacheKey: string, response: PhraseResponse) {
         this.repo.setItem(cacheKey, response.body);
         this.repo.setItem("last_update", Date.now().toString());

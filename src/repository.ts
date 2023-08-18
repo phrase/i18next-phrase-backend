@@ -19,6 +19,10 @@ export default class Repository {
         return this.storage.getItem(key);
     }
 
+    clear() {
+        this.storage.clear();
+    }
+
     isLocalStorageAvailable(): boolean {
         if (typeof localStorage !== 'undefined') {
             try {
