@@ -12,7 +12,6 @@ describe('requestTranslations', () => {
     distribution: 'MY_DISTRIBUTION',
     secret: 'MY_SECRET',
     cacheExpirationTime: 1000,
-    debug: true,
   });
 
   const mockResponse = {
