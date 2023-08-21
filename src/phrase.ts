@@ -91,11 +91,11 @@ export default class Phrase {
     }
 
     private generateCacheKey(distribution: string, secret: string, localeCode: string): string {
-        return `i18next-phrase-backend::${distribution}::${secret}::${localeCode}`;
+        return `${distribution}::${secret}::${localeCode}`;
     }
 
     private getUUID() {
-        const uuidKey = "i18next-phrase-backend::UUID"
+        const uuidKey = "UUID"
         let uuid = null
         uuid = this.repo.getItem(uuidKey);
         if (!uuid) {

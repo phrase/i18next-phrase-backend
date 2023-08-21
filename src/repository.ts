@@ -3,6 +3,8 @@ import MemoryStorage from "./memory_storage";
 export default class Repository {
     private storage: Storage;
 
+    KEY_PREFIX = 'i18next-phrase-backend::';
+
     constructor() {
         if (this.isLocalStorageAvailable()) {
             this.storage = localStorage;
@@ -12,11 +14,11 @@ export default class Repository {
     }
 
     setItem(key: string, value: string) {
-        this.storage.setItem(key, value);
+        this.storage.setItem(`${this.KEY_PREFIX}${key}`, value);
     }
 
     getItem(key: string): string | null {
-        return this.storage.getItem(key);
+        return this.storage.getItem(`${this.KEY_PREFIX}${key}`);
     }
 
     clear() {
@@ -26,9 +28,9 @@ export default class Repository {
     isLocalStorageAvailable(): boolean {
         if (typeof localStorage !== 'undefined') {
             try {
-                localStorage.setItem('i18next-phrase-backend::storage', 'enabled');
-                if (localStorage.getItem('i18next-phrase-backend::storage') === 'enabled') {
-                    localStorage.removeItem('i18next-phrase-backend::storage');
+                localStorage.setItem(`${this.KEY_PREFIX}storage`, 'enabled');
+                if (localStorage.getItem(`${this.KEY_PREFIX}storage`) === 'enabled') {
+                    localStorage.removeItem(`${this.KEY_PREFIX}storage`);
                     return true;
                 }
             } catch {
