@@ -1,7 +1,7 @@
 import { PhraseApi, PhraseResponse } from "./phrase_api";
 import Repository from "./repository";
 
-const PHRASE_SDK_VERSION = '1.1.0'
+export const PHRASE_SDK_VERSION = '1.1.0'
 const DEFAULT_FORMAT = 'i18next'
 const DEFAULT_URL = 'https://ota.eu.phrase.com'
 
@@ -11,7 +11,7 @@ export interface Options {
     appVersion?: string,
     cacheExpirationTime: number,
     host?: string,
-    debug: boolean
+    debug?: boolean
 }
 
 export default class Phrase {
@@ -80,6 +80,10 @@ export default class Phrase {
         }
     }
 
+    clearCache() {
+        this.repo.clear();
+    }
+
     private cacheResponse(cacheKey: string, response: PhraseResponse) {
         this.repo.setItem(cacheKey, response.body);
         this.repo.setItem("last_update", Date.now().toString());
@@ -87,11 +91,11 @@ export default class Phrase {
     }
 
     private generateCacheKey(distribution: string, secret: string, localeCode: string): string {
-        return `i18next-phrase-backend::${distribution}::${secret}::${localeCode}`;
+        return `${distribution}::${secret}::${localeCode}`;
     }
 
     private getUUID() {
-        const uuidKey = "i18next-phrase-backend::UUID"
+        const uuidKey = "UUID"
         let uuid = null
         uuid = this.repo.getItem(uuidKey);
         if (!uuid) {
