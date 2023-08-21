@@ -1,7 +1,7 @@
 import { PhraseApi, PhraseResponse } from "./phrase_api";
 import Repository from "./repository";
 
-const PHRASE_SDK_VERSION = '1.1.0'
+export const PHRASE_SDK_VERSION = '1.1.0'
 const DEFAULT_FORMAT = 'i18next'
 const DEFAULT_URL = 'https://ota.eu.phrase.com'
 

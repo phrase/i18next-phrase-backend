@@ -1,5 +1,5 @@
 import {describe, expect, test} from '@jest/globals';
-import Phrase from '../src/phrase';
+import Phrase, {PHRASE_SDK_VERSION} from '../src/phrase';
 
 Object.defineProperty(globalThis, 'crypto', {
   value: {
@@ -57,7 +57,7 @@ describe('requestTranslations', () => {
     test('the request is executed with proper parameters', async () => {
       await phrase.requestTranslations('en');
       expect(fetchMock).toHaveBeenCalledWith(
-        new URL('https://ota.eu.phrase.com/MY_DISTRIBUTION/MY_SECRET/en/i18next?client=i18next&sdk_version=1.1.0&unique_identifier=MY_UUID'),
+        new URL(`https://ota.eu.phrase.com/MY_DISTRIBUTION/MY_SECRET/en/i18next?client=i18next&sdk_version=${PHRASE_SDK_VERSION}&unique_identifier=MY_UUID`),
         expect.anything(),
       );
     });
