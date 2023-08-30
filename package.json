@@ -13,7 +13,7 @@
     "test": "npx jest",
     "build": "npm run build:common && npm run build:types",
     "build:types": "tsc --emitDeclarationOnly",
-    "build:common": "rm -rf dist && node esbuild.js && npm run build:types"
+    "build:common": "rm -rf dist && node esbuild.js"
   },
   "keywords": [
     "i18next",
