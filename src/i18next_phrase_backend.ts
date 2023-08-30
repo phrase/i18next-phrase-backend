@@ -1,13 +1,13 @@
 import Phrase, { Options } from "./phrase";
+import { BackendModule, ReadCallback } from "i18next";
 
-export class I18nextPhraseBackend {
+export class I18nextPhraseBackend implements BackendModule<Options> {
   options: Options;
-  type: string
+  static type: "backend";
   phrase?: Phrase
-  static type: string
+  type!: "backend";
 
   constructor(_services: any, _options: Options) {
-    this.type = 'backend'
     this.options = {} as Options;
   }
 
@@ -21,12 +21,10 @@ export class I18nextPhraseBackend {
     this.phrase = new Phrase(options)
   }
 
-  read(language: string, _namespace: string) {
+  async read(language: string, _namespace: string, callback: ReadCallback) {
     if (this.phrase) {
-      const translation = this.phrase.requestTranslations(language)
-      return new Promise((resolve) => {
-        resolve(translation)
-      })
+      const translation = await this.phrase.requestTranslations(language)
+      callback(null, translation)
     }
   }
 }
