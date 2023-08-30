@@ -21,10 +21,13 @@ export class I18nextPhraseBackend implements BackendModule<Options> {
     this.phrase = new Phrase(options)
   }
 
-  async read(language: string, _namespace: string, callback: ReadCallback) {
+  read(language: string, _namespace: string, callback: ReadCallback) {
     if (this.phrase) {
-      const translation = await this.phrase.requestTranslations(language)
-      callback(null, translation)
+      this.phrase.requestTranslations(language).then((translations) => {
+        callback(null, translations)
+      }).catch((error) => {
+        callback(error, null)
+      })
     }
   }
 }
