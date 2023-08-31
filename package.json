@@ -1,6 +1,6 @@
 {
   "name": "@phrase/i18next-backend",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Phrase Strings OTA i18next backend",
   "main": "dist/index.cjs.js",
   "module": "dist/index.esm.js",
@@ -36,6 +36,7 @@
     "eslint-plugin-import": "^2.27.5",
     "eslint-plugin-n": "^15.7.0",
     "eslint-plugin-promise": "^6.1.1",
+    "i18next": "^23.4.6",
     "ts-jest": "^29.1.1",
     "typescript": "^5.1.6"
   }
