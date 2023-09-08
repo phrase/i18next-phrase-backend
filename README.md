@@ -6,7 +6,7 @@ This small library implements an example [backend](https://www.i18next.com/overv
 
 ## Usage
 
-A demo project can be found at https://github.com/phrase/react_ota_example
+A demo project can be found at https://github.com/phrase/ota-web-demo
 
 ### Basic usage
 
