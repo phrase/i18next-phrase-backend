@@ -10,9 +10,13 @@ A demo project can be found at https://github.com/phrase/ota-web-demo
 
 ### Basic usage
 
+```
+npm install --save @phrase/i18next-backend
+```
+
 ```javascript
 import i18n from "i18next";
-import { I18nextPhraseBackend } from "i18next-phrase-backend";
+import { I18nextPhraseBackend } from "@phrase/i18next-backend";
 
 i18n
   .use(I18nextPhraseBackend)
