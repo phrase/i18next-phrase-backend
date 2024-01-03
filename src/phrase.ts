@@ -1,5 +1,6 @@
 import { PhraseApi, PhraseResponse } from "./phrase_api";
 import Repository from "./repository";
+import UUID from "./uuid";
 
 export const PHRASE_SDK_VERSION = '1.1.0'
 const DEFAULT_FORMAT = 'i18next'
@@ -99,7 +100,7 @@ export default class Phrase {
         let uuid = null
         uuid = this.repo.getItem(uuidKey);
         if (!uuid) {
-            uuid = crypto.randomUUID();
+            uuid = new UUID().value;
             this.repo.setItem(uuidKey, uuid);
         }
         return uuid;
