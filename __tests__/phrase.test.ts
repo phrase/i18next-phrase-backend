@@ -4,7 +4,7 @@ import Phrase, {PHRASE_SDK_VERSION} from '../src/phrase';
 const V4_UUID = "b54f7566-6d85-4d97-9960-2ad82edfe317";
 jest.mock('uuid', () => ({ v4: () => V4_UUID }));
 
-describe('requestTranslations', () => {  
+describe('requestTranslations', () => {
   const phrase = new Phrase({
     distribution: 'MY_DISTRIBUTION',
     secret: 'MY_SECRET',
