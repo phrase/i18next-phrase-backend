@@ -1,3 +1,4 @@
+import { v4 } from "uuid";
 import { PhraseApi, PhraseResponse } from "./phrase_api";
 import Repository from "./repository";
 
@@ -99,7 +100,7 @@ export default class Phrase {
         let uuid = null
         uuid = this.repo.getItem(uuidKey);
         if (!uuid) {
-            uuid = crypto.randomUUID();
+            uuid = v4();
             this.repo.setItem(uuidKey, uuid);
         }
         return uuid;

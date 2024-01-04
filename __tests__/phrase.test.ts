@@ -1,11 +1,8 @@
 import {describe, expect, test} from '@jest/globals';
 import Phrase, {PHRASE_SDK_VERSION} from '../src/phrase';
 
-Object.defineProperty(globalThis, 'crypto', {
-  value: {
-    randomUUID: () => 'MY_UUID',
-  }
-});
+const V4_UUID = "b54f7566-6d85-4d97-9960-2ad82edfe317";
+jest.mock('uuid', () => ({ v4: () => V4_UUID }));
 
 describe('requestTranslations', () => {
   const phrase = new Phrase({
@@ -57,7 +54,7 @@ describe('requestTranslations', () => {
     test('the request is executed with proper parameters', async () => {
       await phrase.requestTranslations('en');
       expect(fetchMock).toHaveBeenCalledWith(
-        new URL(`https://ota.eu.phrase.com/MY_DISTRIBUTION/MY_SECRET/en/i18next?client=i18next&sdk_version=${PHRASE_SDK_VERSION}&unique_identifier=MY_UUID`),
+        new URL(`https://ota.eu.phrase.com/MY_DISTRIBUTION/MY_SECRET/en/i18next?client=i18next&sdk_version=${PHRASE_SDK_VERSION}&unique_identifier=${V4_UUID}`),
         expect.anything(),
       );
     });
