@@ -30,6 +30,16 @@ i18n
   });
 ```
 
+### Options
+
+The backend accepts several options:
+
+* `distribution` (required): The ID of your Phrase Strings OTA distribution
+* `secret` (required): The secret token of your Phrase Strings OTA distribution. There are different secrets for `development` (i.e. beta) and `production` environments
+* `appVersion`: You can prevent some OTA releases from being serverd to certain app versions by providing minimum and maximum app version in Phrase Strings
+* `cacheExpirationTime`: See [Caching](#caching) below
+* `host`: By default, this library uses EU instance of Phrase Strings, if you use US DC, set this to `https://ota.us.phrase.com`
+
 ## Caching
 
 The library is caching translations and won't check for new translations for 5 minutes. This can be configured by setting the `cacheExpirationTime` option in the backend configuration for testing purposes. It's recommended to use at least 5 minutes in production.
