@@ -23,6 +23,7 @@ i18n
   .init({
     fallbackLng: 'en',
     backend: {
+      host: "https://ota.eu.phrase.com", // US datacenter: https://ota.us.phrase.com
       distribution: 'DISTRIBUTION_ID',
       secret: 'YOUR_ENVIRONMENT_SECRET',
       appVersion: '1.0.0',
