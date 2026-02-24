@@ -12,7 +12,8 @@ export interface Options {
     appVersion?: string,
     cacheExpirationTime: number,
     host?: string,
-    debug?: boolean
+    debug?: boolean,
+    format?: 'i18next' | 'i18next_4'
 }
 
 export default class Phrase {
@@ -25,7 +26,7 @@ export default class Phrase {
 
     constructor(options: Options) {
         this.options = options
-        this.fileFormat = DEFAULT_FORMAT;
+        this.fileFormat = options.format ?? DEFAULT_FORMAT;
         this.uuid = this.getUUID();
 
         this.api = new PhraseApi(this.options.host || DEFAULT_URL);
