@@ -24,7 +24,7 @@ i18n
     fallbackLng: 'en',
     backend: {
       distribution: 'DISTRIBUTION_ID',
-      secret: 'YOUR_ENVIRONMENT_SECRET',
+      environment: 'YOUR_ENVIRONMENT_SECRET',
       appVersion: '1.0.0',
     }
   });
@@ -35,11 +35,45 @@ i18n
 The backend accepts several options:
 
 * `distribution` (required): The ID of your Phrase Strings OTA distribution
-* `secret` (required): The secret token of your Phrase Strings OTA distribution. There are different secrets for `development` (i.e. beta) and `production` environments
+* `environment` (required): The environment token of your Phrase Strings OTA distribution. Different tokens exist for `development` (i.e. beta) and `production` environments
 * `appVersion`: You can prevent some OTA releases from being serverd to certain app versions by providing minimum and maximum app version in Phrase Strings
 * `cacheExpirationTime`: See [Caching](#caching) below
 * `host`: By default, this library uses EU instance of Phrase Strings, if you use US DC, set this to `https://ota.us.phrase.com`
 * `format`: By default this library uses the i18next format, if you use i18next v4 (for the new pluralization resolution strategy), set this to `i18next_4`
+* `storage`: Custom async storage implementation (see [React Native](#react-native) below)
+
+## React Native
+
+`@phrase/i18next-backend` works in React Native when you provide an async storage implementation via the `storage` option. No React Native dependency is bundled. The package accepts any `AsyncStorage`-compatible storage implementation.
+
+```
+npm install --save @phrase/i18next-backend @react-native-async-storage/async-storage
+```
+
+```javascript
+import i18n from 'i18next';
+import { initReactI18next } from 'react-i18next';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { I18nextPhraseBackend } from '@phrase/i18next-backend';
+
+i18n
+  .use(I18nextPhraseBackend)
+  .use(initReactI18next)
+  .init({
+    fallbackLng: 'en',
+    backend: {
+      distribution: 'DISTRIBUTION_ID',
+      environment: 'YOUR_ENVIRONMENT_SECRET',
+      storage: AsyncStorage,
+    },
+  });
+```
+
+Any storage that implements `getItem`, `setItem`, and `clear` returning Promises is accepted (e.g. [react-native-mmkv](https://github.com/mrousavy/react-native-mmkv) with a small adapter).
+
+### react-native-web
+
+For codebases that target both React Native and web via `react-native-web`, no platform-specific wiring is needed — passing `AsyncStorage` works on both targets since `@react-native-async-storage/async-storage` ships a web implementation backed by `localStorage`. Alternatively, omit `storage` entirely and the package auto-detects `localStorage` on the web build.
 
 ## Caching
 
@@ -52,7 +86,7 @@ i18n
     fallbackLng: 'en',
     backend: {
       distribution: 'DISTRIBUTION_ID',
-      secret: 'YOUR_ENVIRONMENT_SECRET',
+      environment: 'YOUR_ENVIRONMENT_SECRET',
       appVersion: '1.0.0',
       cacheExpirationTime: 60 * 5, // time in seconds
     }
