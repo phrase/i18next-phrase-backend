@@ -75,6 +75,81 @@ Any storage that implements `getItem`, `setItem`, and `clear` returning Promises
 
 For codebases that target both React Native and web via `react-native-web`, no platform-specific wiring is needed — passing `AsyncStorage` works on both targets since `@react-native-async-storage/async-storage` ships a web implementation backed by `localStorage`. Alternatively, omit `storage` entirely and the package auto-detects `localStorage` on the web build.
 
+## Offline fallback
+
+To serve bundled translations when the OTA fetch fails, chain this backend with a local fallback using [`i18next-chained-backend`](https://github.com/i18next/i18next-chained-backend).
+
+```
+npm install --save i18next-chained-backend
+```
+
+### Web
+
+Use [`i18next-http-backend`](https://github.com/i18next/i18next-http-backend) as the fallback — no manual imports needed, files are loaded by URL:
+
+```
+npm install --save i18next-http-backend
+```
+
+```javascript
+import i18n from 'i18next';
+import ChainedBackend from 'i18next-chained-backend';
+import HttpBackend from 'i18next-http-backend';
+import { I18nextPhraseBackend } from '@phrase/i18next-backend';
+
+i18n
+  .use(ChainedBackend)
+  .init({
+    fallbackLng: 'en',
+    backend: {
+      backends: [I18nextPhraseBackend, HttpBackend],
+      backendOptions: [
+        { distribution: 'DISTRIBUTION_ID', environment: 'YOUR_ENVIRONMENT_SECRET' },
+        { loadPath: '/locales/{{lng}}/{{ns}}.json' },
+      ],
+    },
+  });
+```
+
+### React Native
+
+Use [`i18next-resources-to-backend`](https://github.com/i18next/i18next-resources-to-backend) with a dynamic import — Metro bundles all matching files without manual per-language imports:
+
+```
+npm install --save i18next-resources-to-backend
+```
+
+```javascript
+import i18n from 'i18next';
+import { initReactI18next } from 'react-i18next';
+import ChainedBackend from 'i18next-chained-backend';
+import resourcesToBackend from 'i18next-resources-to-backend';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { I18nextPhraseBackend } from '@phrase/i18next-backend';
+
+i18n
+  .use(ChainedBackend)
+  .use(initReactI18next)
+  .init({
+    fallbackLng: 'en',
+    backend: {
+      backends: [
+        I18nextPhraseBackend,
+        resourcesToBackend((language, namespace) =>
+          import(`./locales/${language}/${namespace}.json`)
+        ),
+      ],
+      backendOptions: [
+        {
+          distribution: 'DISTRIBUTION_ID',
+          environment: 'YOUR_ENVIRONMENT_SECRET',
+          storage: AsyncStorage,
+        },
+      ],
+    },
+  });
+```
+
 ## Caching
 
 The library is caching translations and won't check for new translations for 5 minutes. This can be configured by setting the `cacheExpirationTime` option in the backend configuration for testing purposes. It's recommended to use at least 5 minutes in production.
