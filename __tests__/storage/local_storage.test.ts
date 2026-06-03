@@ -2,14 +2,14 @@
  * @jest-environment jsdom
  */
 import { describe, expect, test, beforeEach } from '@jest/globals';
-import LocalStorageAdapter from '../../src/storage/local_storage_adapter';
+import LocalStorage from '../../src/storage/local_storage';
 
-describe('LocalStorageAdapter', () => {
-  let adapter: LocalStorageAdapter;
+describe('LocalStorage', () => {
+  let adapter: LocalStorage;
 
   beforeEach(() => {
     localStorage.clear();
-    adapter = new LocalStorageAdapter();
+    adapter = new LocalStorage();
   });
 
   test('returns null for missing keys', async () => {
@@ -45,7 +45,7 @@ describe('LocalStorageAdapter', () => {
   describe('with a prefix', () => {
     beforeEach(() => {
       localStorage.clear();
-      adapter = new LocalStorageAdapter('phrase::');
+      adapter = new LocalStorage('phrase::');
     });
 
     test('prepends the prefix to get and set operations', async () => {

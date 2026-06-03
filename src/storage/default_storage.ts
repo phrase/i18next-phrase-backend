@@ -1,5 +1,5 @@
 import { PhraseStorage } from './types';
-import LocalStorageAdapter from './local_storage_adapter';
+import LocalStorage from './local_storage';
 import MemoryStorage from './memory_storage';
 
 const KEY_PREFIX = 'i18next-phrase-backend::';
@@ -18,5 +18,5 @@ function isLocalStorageAvailable(): boolean {
 }
 
 export function defaultStorage(): PhraseStorage {
-  return isLocalStorageAvailable() ? new LocalStorageAdapter(KEY_PREFIX) : new MemoryStorage();
+  return isLocalStorageAvailable() ? new LocalStorage(KEY_PREFIX) : new MemoryStorage();
 }

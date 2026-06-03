@@ -1,6 +1,6 @@
 import { PhraseStorage } from './types';
 
-export default class LocalStorageAdapter implements PhraseStorage {
+export default class LocalStorage implements PhraseStorage {
   private readonly prefix: string;
 
   constructor(prefix: string = '') {

@@ -3,12 +3,12 @@
  */
 import { describe, expect, test, afterEach } from '@jest/globals';
 import { defaultStorage } from '../../src/storage/default_storage';
-import LocalStorageAdapter from '../../src/storage/local_storage_adapter';
+import LocalStorage from '../../src/storage/local_storage';
 import MemoryStorage from '../../src/storage/memory_storage';
 
 describe('defaultStorage (jsdom env, localStorage available)', () => {
-  test('returns a LocalStorageAdapter instance', () => {
-    expect(defaultStorage()).toBeInstanceOf(LocalStorageAdapter);
+  test('returns a LocalStorage instance', () => {
+    expect(defaultStorage()).toBeInstanceOf(LocalStorage);
   });
 
   test('returned storage is functional', async () => {
