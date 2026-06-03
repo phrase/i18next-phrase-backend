@@ -5,14 +5,19 @@ import { version } from '../package.json';
 
 export const PHRASE_SDK_VERSION = version;
 const DEFAULT_FORMAT = 'i18next';
-const DEFAULT_URL = 'https://ota.eu.phrase.com';
 const DEFAULT_CACHE_EXPIRATION = 60 * 5;
+
+export enum Datacenter {
+  EU = 'https://ota.eu.phrase.com',
+  US = 'https://ota.us.phrase.com',
+}
 
 export interface Options {
   distribution: string;
   environment: string;
   appVersion?: string;
   cacheExpirationTime?: number;
+  datacenter?: Datacenter;
   host?: string;
   debug?: boolean;
   format?: 'i18next' | 'i18next_4';
@@ -28,7 +33,7 @@ export default class Phrase {
   constructor(options: Options) {
     this.options = { ...options, cacheExpirationTime: options.cacheExpirationTime ?? DEFAULT_CACHE_EXPIRATION };
     this.api = new PhraseApi({
-      baseUrl: options.host || DEFAULT_URL,
+      baseUrl: options.host ?? options.datacenter ?? Datacenter.EU,
       distribution: options.distribution,
       environment: options.environment,
       fileFormat: options.format ?? DEFAULT_FORMAT,

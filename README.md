@@ -38,7 +38,7 @@ The backend accepts several options:
 * `environment` (required): The environment token of your Phrase Strings OTA distribution. Different tokens exist for `development` (i.e. beta) and `production` environments
 * `appVersion`: You can prevent some OTA releases from being serverd to certain app versions by providing minimum and maximum app version in Phrase Strings
 * `cacheExpirationTime`: See [Caching](#caching) below
-* `host`: By default, this library uses EU instance of Phrase Strings, if you use US DC, set this to `https://ota.us.phrase.com`
+* `datacenter`: `Datacenter.EU` (default) or `Datacenter.US`. Selects the Phrase OTA datacenter
 * `format`: By default this library uses the i18next format, if you use i18next v4 (for the new pluralization resolution strategy), set this to `i18next_4`
 * `storage`: Custom async storage implementation (see [React Native](#react-native) below)
 

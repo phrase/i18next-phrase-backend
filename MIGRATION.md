@@ -38,6 +38,18 @@ backend: {
 
 See the [React Native section in the README](./README.md#react-native) for the full setup.
 
+### New: `Datacenter` enum
+
+```ts
+import { Datacenter } from '@phrase/i18next-backend';
+
+backend: {
+  distribution: '...',
+  environment: '...',
+  datacenter: Datacenter.US, // or Datacenter.EU (default)
+}
+```
+
 ### New: `PhraseStorage` interface exported
 
 ```ts

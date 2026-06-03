@@ -1,5 +1,5 @@
 import { describe, expect, test, beforeEach, jest } from '@jest/globals';
-import Phrase, { PHRASE_SDK_VERSION, Options } from '../src/phrase';
+import Phrase, { PHRASE_SDK_VERSION, Datacenter, Options } from '../src/phrase';
 import { FakeStorage } from './helpers/fake_storage';
 
 const V4_UUID = 'b54f7566-6d85-4d97-9960-2ad82edfe317';
@@ -215,6 +215,32 @@ describe('requestTranslations', () => {
     test('defaults to 300 seconds when not provided', () => {
       const phrase = new Phrase({ distribution: 'D', environment: 'S', storage: new FakeStorage() });
       expect((phrase as any).options.cacheExpirationTime).toBe(300);
+    });
+  });
+
+  describe('datacenter option', () => {
+    test('uses EU datacenter by default', async () => {
+      const fetchMock = makeFetch(200);
+      setGlobalFetch(fetchMock);
+      await makePhrase().requestTranslations('en');
+      const url: URL = (fetchMock.mock.calls[0] as any[])[0];
+      expect(url.origin).toBe(Datacenter.EU);
+    });
+
+    test('uses US datacenter when specified', async () => {
+      const fetchMock = makeFetch(200);
+      setGlobalFetch(fetchMock);
+      await makePhrase({ datacenter: Datacenter.US }).requestTranslations('en');
+      const url: URL = (fetchMock.mock.calls[0] as any[])[0];
+      expect(url.origin).toBe(Datacenter.US);
+    });
+
+    test('host overrides datacenter', async () => {
+      const fetchMock = makeFetch(200);
+      setGlobalFetch(fetchMock);
+      await makePhrase({ host: 'https://custom.example.com', datacenter: Datacenter.US }).requestTranslations('en');
+      const url: URL = (fetchMock.mock.calls[0] as any[])[0];
+      expect(url.origin).toBe('https://custom.example.com');
     });
   });
 
