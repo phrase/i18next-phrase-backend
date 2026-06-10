@@ -8,7 +8,7 @@ build({
     minify: false,
     treeShaking: true,
     format: 'cjs',
-    target: ["esnext", "node14"],
+    target: ["esnext", "node18"],
     plugins: [nodeExternalsPlugin()],
 }).catch(() => process.exit(1));
 
@@ -19,6 +19,6 @@ build({
     minify: false,
     treeShaking: true,
     format: 'esm',
-    target: ["esnext", "node14"],
+    target: ["esnext", "node18"],
     plugins: [nodeExternalsPlugin()],
 }).catch(() => process.exit(1));
