@@ -12,12 +12,11 @@ export class I18nextPhraseBackend implements BackendModule<Options> {
   }
 
   init(_services: any, options: Options) {
-    if (!options.distribution || !options.secret) {
-      throw new Error('distribution and secret are required');
+    if (!options.distribution || !options.environment) {
+      throw new Error('distribution and environment are required');
     }
 
     this.options = options
-    this.options.cacheExpirationTime = this.options.cacheExpirationTime || 60 * 5
     this.phrase = new Phrase(options)
   }
 

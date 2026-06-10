@@ -1,109 +1,130 @@
-import { v4 } from "uuid";
-import { PhraseApi, PhraseResponse } from "./phrase_api";
-import Repository from "./repository";
+import { PhraseApi, PhraseResponse } from './phrase_api';
+import { PhraseStorage } from './storage/types';
+import { defaultStorage } from './storage/default_storage';
+import { version } from '../package.json';
 
-export const PHRASE_SDK_VERSION = '1.1.0'
-const DEFAULT_FORMAT = 'i18next'
-const DEFAULT_URL = 'https://ota.eu.phrase.com'
+export const PHRASE_SDK_VERSION = version;
+const DEFAULT_FORMAT = 'i18next';
+const DEFAULT_CACHE_EXPIRATION = 60 * 5;
+
+export enum Datacenter {
+  EU = 'https://ota.eu.phrase.com',
+  US = 'https://ota.us.phrase.com',
+}
 
 export interface Options {
-    distribution: string,
-    secret: string,
-    appVersion?: string,
-    cacheExpirationTime: number,
-    host?: string,
-    debug?: boolean,
-    format?: 'i18next' | 'i18next_4'
+  distribution: string;
+  environment: string;
+  appVersion?: string;
+  cacheExpirationTime?: number;
+  datacenter?: Datacenter;
+  host?: string;
+  debug?: boolean;
+  format?: 'i18next' | 'i18next_4';
+  storage?: PhraseStorage;
 }
 
 export default class Phrase {
-    options: Options;
-    fileFormat: string;
-    uuid: string;
-    api: PhraseApi;
+  private readonly options: Options;
+  private readonly api: PhraseApi;
+  private readonly storage: PhraseStorage;
+  private uuidPromise: Promise<string> | null = null;
 
-    private repo: Repository = new Repository();
+  constructor(options: Options) {
+    this.options = { ...options, cacheExpirationTime: options.cacheExpirationTime ?? DEFAULT_CACHE_EXPIRATION };
+    this.api = new PhraseApi({
+      baseUrl: options.host ?? options.datacenter ?? Datacenter.EU,
+      distribution: options.distribution,
+      environment: options.environment,
+      fileFormat: options.format ?? DEFAULT_FORMAT,
+      sdkVersion: PHRASE_SDK_VERSION,
+      appVersion: options.appVersion,
+    });
+    this.storage = options.storage ?? defaultStorage();
+  }
 
-    constructor(options: Options) {
-        this.options = options
-        this.fileFormat = options.format ?? DEFAULT_FORMAT;
-        this.uuid = this.getUUID();
-
-        this.api = new PhraseApi(this.options.host || DEFAULT_URL);
+  private log(s: string) {
+    if (this.options.debug) {
+      console.log('PHRASE: ' + s);
     }
+  }
 
-    log(s: string) {
-        if (this.options.debug) {
-            console.log("PHRASE: " + s);
-        }
+  private getUUID(): Promise<string> {
+    if (!this.uuidPromise) {
+      this.uuidPromise = this.loadOrGenerateUUID().catch((e) => {
+        this.uuidPromise = null;
+        throw e;
+      });
     }
+    return this.uuidPromise;
+  }
 
-    async requestTranslations(localeCode: string) {
-        const cacheKey = this.generateCacheKey(this.options.distribution, this.options.secret, localeCode);
-        const expirationKey = `${cacheKey}::expiration`;
-        const expirationDate = this.repo.getItem(expirationKey);
-        if (!expirationDate || Date.now() > parseInt(expirationDate)) {
-            const currentVersion = this.repo.getItem(`${cacheKey}::current_version`);
-            const lastUpdate = this.repo.getItem(`${cacheKey}::last_update`);
+  private async loadOrGenerateUUID(): Promise<string> {
+    let uuid = await this.storage.getItem('UUID');
+    if (!uuid) {
+      uuid = crypto.randomUUID();
+      await this.storage.setItem('UUID', uuid);
+    }
+    return uuid;
+  }
 
-            try {
-                const response = await this.api.getTranslations(
-                    this.options.distribution,
-                    this.options.secret,
-                    localeCode,
-                    this.fileFormat,
-                    this.uuid,
-                    PHRASE_SDK_VERSION,
-                    currentVersion,
-                    this.options.appVersion,
-                    lastUpdate
-                )
-                if (response != null) {
-                    this.log("OTA update for `" + localeCode + "`: OK");
-                    this.cacheResponse(cacheKey, response);
-                } else {
-                    this.log("OTA update for `" + localeCode + "`: NOT MODIFIED");
-                }
+  async requestTranslations(localeCode: string): Promise<Record<string, unknown>> {
+    try {
+      const uuid = await this.getUUID();
+      const cacheKey = this.generateCacheKey(this.options.distribution, this.options.environment, localeCode);
+      const expirationKey = `${cacheKey}::expiration`;
+      const expirationDate = await this.storage.getItem(expirationKey);
 
-                const expiryTime = 1000 * this.options.cacheExpirationTime;
-                this.repo.setItem(`${cacheKey}::expiration`, (Date.now() + expiryTime).toString());
-            } catch (e) {
-                this.log("OTA update for `" + localeCode + "`: ERROR: " + e);
-                return({});
-            }
-        }
+      if (!expirationDate || Date.now() > parseInt(expirationDate)) {
+        const [currentVersion, lastUpdate, cachedBody] = await Promise.all([
+          this.storage.getItem(`${cacheKey}::current_version`),
+          this.storage.getItem(`${cacheKey}::last_update`),
+          this.storage.getItem(cacheKey),
+        ]);
 
-        const cacheValue = this.repo.getItem(cacheKey);
-        if (cacheValue) {
-            return JSON.parse(cacheValue);
+        const response = await this.api.getTranslations({ locale: localeCode, uuid, currentVersion, lastUpdate });
+
+        if (response != null) {
+          this.log('OTA update for `' + localeCode + '`: OK');
+          await this.cacheResponse(cacheKey, response);
         } else {
-            this.log("Nothing found in cache, no translations returned");
-            return({});
+          this.log('OTA update for `' + localeCode + '`: NOT MODIFIED');
         }
-    }
 
-    clearCache() {
-        this.repo.clear();
-    }
-
-    private cacheResponse(cacheKey: string, response: PhraseResponse) {
-        this.repo.setItem(cacheKey, response.body);
-        this.repo.setItem("last_update", Date.now().toString());
-        this.repo.setItem(`${cacheKey}::current_version`, response.version?.toString() || "")
-    }
-
-    private generateCacheKey(distribution: string, secret: string, localeCode: string): string {
-        return `${distribution}::${secret}::${localeCode}`;
-    }
-
-    private getUUID() {
-        const uuidKey = "UUID"
-        let uuid = null
-        uuid = this.repo.getItem(uuidKey);
-        if (!uuid) {
-            uuid = v4();
-            this.repo.setItem(uuidKey, uuid);
+        // Only set expiry when there is a body to serve — a 304 on a cold cache must not block retries.
+        if (response != null || cachedBody) {
+          const expiryTime = 1000 * this.options.cacheExpirationTime!;
+          await this.storage.setItem(expirationKey, (Date.now() + expiryTime).toString());
         }
-        return uuid;
+      }
+
+      const cacheValue = await this.storage.getItem(cacheKey);
+      if (cacheValue) {
+        return JSON.parse(cacheValue);
+      } else {
+        this.log('Nothing found in cache, no translations returned');
+        return {};
+      }
+    } catch (e) {
+      this.log('OTA update for `' + localeCode + '`: ERROR: ' + e);
+      return {};
     }
+  }
+
+  async clearCache() {
+    this.uuidPromise = null;
+    await this.storage.clear();
+  }
+
+  private async cacheResponse(cacheKey: string, response: PhraseResponse) {
+    await Promise.all([
+      this.storage.setItem(cacheKey, response.body),
+      this.storage.setItem(`${cacheKey}::last_update`, Date.now().toString()),
+      this.storage.setItem(`${cacheKey}::current_version`, response.version?.toString() || ''),
+    ]);
+  }
+
+  private generateCacheKey(distribution: string, environment: string, localeCode: string): string {
+    return `${distribution}::${environment}::${localeCode}`;
+  }
 }
