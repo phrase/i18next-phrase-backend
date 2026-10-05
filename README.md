@@ -167,3 +167,11 @@ i18n
     }
   });
 ```
+
+## Releasing a new version
+
+After merging dependency bumps or other changes that warrant a new release:
+
+1. Bump the `version` field in `package.json` (and run `npm install` so `package-lock.json` picks up the new version) in a PR, e.g. "bump version to x.y.z".
+2. Once that PR is merged to `main`, create a [GitHub release](https://github.com/phrase/i18next-phrase-backend/releases/new) with a tag matching the new version (e.g. `1.3.4`, no `v` prefix) targeting `main`.
+3. Publishing the release triggers the [`release.yml`](.github/workflows/release.yml) workflow, which runs `npm run build` and `npm publish --provenance --access public` to push the package to npmjs.org.
