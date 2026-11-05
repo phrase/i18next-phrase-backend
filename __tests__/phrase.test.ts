@@ -89,11 +89,23 @@ describe('requestTranslations', () => {
   });
 
   describe('when the request fails (4xx)', () => {
-    test('returns an empty object', async () => {
+    test('rejects with an error', async () => {
       const phrase = makePhrase();
       setGlobalFetch(makeFetch(400));
-      const translations = await phrase.requestTranslations('en');
-      expect(translations).toEqual({});
+      await expect(phrase.requestTranslations('en')).rejects.toThrow('HTTP code 400');
+    });
+  });
+
+  describe('when the locale is not found (404)', () => {
+    test('returns an empty object, caches it and does not report an error', async () => {
+      const onError = jest.fn();
+      const phrase = makePhrase({ onError });
+      const fetchMock = makeFetch(404);
+      setGlobalFetch(fetchMock);
+      expect(await phrase.requestTranslations('xx')).toEqual({});
+      expect(await phrase.requestTranslations('xx')).toEqual({});
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+      expect(onError).not.toHaveBeenCalled();
     });
   });
 
@@ -169,12 +181,78 @@ describe('requestTranslations', () => {
     });
   });
 
-  describe('empty cache after failed fetch', () => {
-    test('returns empty object when cache is empty and fetch errored', async () => {
+  describe('failed fetch', () => {
+    const failingFetch = () => jest.fn(() => Promise.reject(new TypeError('fetch failed'))) as jest.Mock;
+
+    test('rejects on a 5xx when the cache is empty', async () => {
       const phrase = makePhrase();
       setGlobalFetch(makeFetch(500));
-      const result = await phrase.requestTranslations('en');
-      expect(result).toEqual({});
+      await expect(phrase.requestTranslations('en')).rejects.toThrow('HTTP code 500');
+    });
+
+    test('rejects on a network error when the cache is empty', async () => {
+      const phrase = makePhrase();
+      setGlobalFetch(failingFetch());
+      await expect(phrase.requestTranslations('en')).rejects.toThrow('fetch failed');
+    });
+
+    test('does not lock out future fetches after a failure', async () => {
+      const phrase = makePhrase();
+      setGlobalFetch(makeFetch(500));
+      await expect(phrase.requestTranslations('en')).rejects.toThrow();
+      setGlobalFetch(makeFetch(200));
+      expect(await phrase.requestTranslations('en')).toEqual(mockResponse);
+    });
+
+    test('serves the stale cached body when a refresh fails, and retries on the next call', async () => {
+      const storage = new FakeStorage();
+      const onError = jest.fn();
+      const phrase = makePhrase({ storage, onError });
+      setGlobalFetch(makeFetch(200));
+      await phrase.requestTranslations('en');
+      storage.data.set('MY_DISTRIBUTION::MY_SECRET::en::expiration', '0');
+
+      const failing = makeFetch(503);
+      setGlobalFetch(failing);
+      expect(await phrase.requestTranslations('en')).toEqual(mockResponse);
+      expect(await phrase.requestTranslations('en')).toEqual(mockResponse);
+      expect(failing).toHaveBeenCalledTimes(2);
+      expect(onError).toHaveBeenCalledTimes(2);
+    });
+
+    test('serves the stale cached body on a network error', async () => {
+      const storage = new FakeStorage();
+      const phrase = makePhrase({ storage });
+      setGlobalFetch(makeFetch(200));
+      await phrase.requestTranslations('en');
+      storage.data.set('MY_DISTRIBUTION::MY_SECRET::en::expiration', '0');
+
+      setGlobalFetch(failingFetch());
+      expect(await phrase.requestTranslations('en')).toEqual(mockResponse);
+    });
+
+    test('refetches when the body was evicted but the expiration key survives', async () => {
+      const storage = new FakeStorage();
+      const phrase = makePhrase({ storage });
+      setGlobalFetch(makeFetch(200));
+      await phrase.requestTranslations('en');
+      storage.data.delete('MY_DISTRIBUTION::MY_SECRET::en');
+
+      setGlobalFetch(makeFetch(500));
+      await expect(phrase.requestTranslations('en')).rejects.toThrow('HTTP code 500');
+    });
+
+    test('calls onError without needing debug, and ignores errors thrown by it', async () => {
+      const consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
+      const onError = jest.fn(() => {
+        throw new Error('boom');
+      });
+      const phrase = makePhrase({ onError });
+      setGlobalFetch(makeFetch(500));
+      await expect(phrase.requestTranslations('en')).rejects.toThrow('HTTP code 500');
+      expect(onError).toHaveBeenCalledWith(expect.objectContaining({ message: 'HTTP code 500' }), 'en');
+      expect(consoleSpy).not.toHaveBeenCalled();
+      consoleSpy.mockRestore();
     });
   });
 
@@ -296,8 +374,7 @@ describe('requestTranslations', () => {
       const phrase = new Phrase({ distribution: 'D', environment: 'S', cacheExpirationTime: 60, storage });
       setGlobalFetch(makeFetch(200));
 
-      const result1 = await phrase.requestTranslations('en');
-      expect(result1).toEqual({});
+      await expect(phrase.requestTranslations('en')).rejects.toThrow('storage unavailable');
       expect((phrase as any).uuidPromise).toBeNull();
 
       const result2 = await phrase.requestTranslations('en');

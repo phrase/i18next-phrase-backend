@@ -20,6 +20,7 @@ export interface Options {
   datacenter?: Datacenter;
   host?: string;
   debug?: boolean;
+  onError?: (error: Error, localeCode: string) => void;
   format?: 'i18next' | 'i18next_4';
   storage?: PhraseStorage;
 }
@@ -68,45 +69,58 @@ export default class Phrase {
     return uuid;
   }
 
-  async requestTranslations(localeCode: string): Promise<Record<string, unknown>> {
+  private reportError(localeCode: string, e: unknown) {
+    this.log('OTA update for `' + localeCode + '`: ERROR: ' + e);
     try {
-      const uuid = await this.getUUID();
-      const cacheKey = this.generateCacheKey(this.options.distribution, this.options.environment, localeCode);
-      const expirationKey = `${cacheKey}::expiration`;
-      const expirationDate = await this.storage.getItem(expirationKey);
+      this.options.onError?.(e instanceof Error ? e : new Error(String(e)), localeCode);
+    } catch (callbackError) {
+      this.log('onError callback threw: ' + callbackError);
+    }
+  }
 
-      if (!expirationDate || Date.now() > parseInt(expirationDate)) {
-        const [currentVersion, lastUpdate, cachedBody] = await Promise.all([
-          this.storage.getItem(`${cacheKey}::current_version`),
-          this.storage.getItem(`${cacheKey}::last_update`),
-          this.storage.getItem(cacheKey),
-        ]);
+  async requestTranslations(localeCode: string): Promise<Record<string, unknown>> {
+    const uuid = await this.getUUID();
+    const cacheKey = this.generateCacheKey(this.options.distribution, this.options.environment, localeCode);
+    const expirationKey = `${cacheKey}::expiration`;
+    const expirationDate = await this.storage.getItem(expirationKey);
+    let cachedBody = await this.storage.getItem(cacheKey);
 
+    // An expiration key without a body (evicted storage) must not suppress the fetch.
+    if (!cachedBody || !expirationDate || Date.now() > parseInt(expirationDate)) {
+      const [currentVersion, lastUpdate] = await Promise.all([
+        this.storage.getItem(`${cacheKey}::current_version`),
+        this.storage.getItem(`${cacheKey}::last_update`),
+      ]);
+
+      try {
         const response = await this.api.getTranslations({ locale: localeCode, uuid, currentVersion, lastUpdate });
 
         if (response != null) {
           this.log('OTA update for `' + localeCode + '`: OK');
           await this.cacheResponse(cacheKey, response);
+          cachedBody = response.body;
         } else {
           this.log('OTA update for `' + localeCode + '`: NOT MODIFIED');
         }
 
         // Only set expiry when there is a body to serve — a 304 on a cold cache must not block retries.
-        if (response != null || cachedBody) {
+        if (cachedBody) {
           const expiryTime = 1000 * this.options.cacheExpirationTime!;
           await this.storage.setItem(expirationKey, (Date.now() + expiryTime).toString());
         }
+      } catch (e) {
+        this.reportError(localeCode, e);
+        // Serve the stale body if there is one; the expiration is left untouched so the next read retries.
+        if (!cachedBody) {
+          throw e;
+        }
       }
+    }
 
-      const cacheValue = await this.storage.getItem(cacheKey);
-      if (cacheValue) {
-        return JSON.parse(cacheValue);
-      } else {
-        this.log('Nothing found in cache, no translations returned');
-        return {};
-      }
-    } catch (e) {
-      this.log('OTA update for `' + localeCode + '`: ERROR: ' + e);
+    if (cachedBody) {
+      return JSON.parse(cachedBody);
+    } else {
+      this.log('Nothing found in cache, no translations returned');
       return {};
     }
   }
