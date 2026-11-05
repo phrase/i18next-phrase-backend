@@ -52,6 +52,9 @@ export class PhraseApi {
       return { version, body: json };
     } else if (code === 304) {
       return null;
+    } else if (code === 404) {
+      // Locale not found: a valid, cacheable, empty result — not a transient failure.
+      return { version: null, body: '{}' };
     } else {
       throw new PhraseApiError('HTTP code ' + code);
     }

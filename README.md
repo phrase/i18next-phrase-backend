@@ -41,6 +41,7 @@ The backend accepts several options:
 * `datacenter`: `Datacenter.EU` (default) or `Datacenter.US`. Selects the Phrase OTA datacenter
 * `format`: By default this library uses the i18next format, if you use i18next v4 (for the new pluralization resolution strategy), set this to `i18next_4`
 * `storage`: Custom async storage implementation (see [React Native](#react-native) below)
+* `onError`: Optional `(error, locale) => void` callback invoked whenever fetching translations fails, regardless of `debug`. See [Error handling](#error-handling) below
 
 ## React Native
 
@@ -166,6 +167,22 @@ i18n
       cacheExpirationTime: 60 * 5, // time in seconds
     }
   });
+```
+
+## Error handling
+
+If translations can't be fetched (network error, timeout, 5xx or any other unexpected HTTP status), the backend calls i18next's `read` callback with the error, so i18next emits `failedLoading` and applies its own retry logic. It does **not** resolve with an empty bundle.
+
+* If a previously fetched body is in the cache, it is served as a stale fallback and the refresh is retried on the next read. The error is still reported through `onError`.
+* A locale that does not exist (HTTP 404) is a successful, cacheable, empty result and does not produce an error.
+* Pass `onError` to log or monitor failures without enabling `debug`:
+
+```javascript
+backend: {
+  distribution: 'DISTRIBUTION_ID',
+  environment: 'YOUR_ENVIRONMENT_SECRET',
+  onError: (error, locale) => console.warn(`Phrase OTA failed for ${locale}`, error),
+}
 ```
 
 ## Releasing a new version

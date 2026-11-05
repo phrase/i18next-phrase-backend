@@ -1,5 +1,11 @@
 # Migration Guide
 
+## Unreleased
+
+### Breaking: fetch failures are no longer swallowed
+
+Previously a failed fetch (network error, timeout, 5xx, other HTTP errors) resulted in `callback(null, {})`, so i18next treated it as an empty bundle. Now `read` calls `callback(error, null)` and i18next reports `failedLoading`. If a cached body exists it is served as a stale fallback instead. A 404 (locale not found) still yields an empty result without an error. If you relied on the empty bundle, handle load errors (e.g. `i18n.on('failedLoading', ...)`) or the new `onError` option. See [Error handling](README.md#error-handling).
+
 ## v1 → v2
 
 ### Breaking: `secret` option renamed to `environment`
